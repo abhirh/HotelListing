@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TodoApi.Controllers
+namespace HotelListing.Controllers
 {
     public class WeatherForecast
     {

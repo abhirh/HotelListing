@@ -1,6 +1,12 @@
+using AutoMapper;
+using HotelListing.Configurations;
+using HotelListing.IRepository;
+using HotelListing.NewFolder3;
+using HotelListing.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -9,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using IUnitOfWork = HotelListing.IRepository.IUnitOfWork;
 
 namespace HotelListing
 {
@@ -25,7 +32,14 @@ namespace HotelListing
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson(op =>
+                op.SerializerSettings.ReferenceLoopHandling =
+                    Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+
+
+            services.AddDbContext<DatabaseContext>(options =>
+               options.UseSqlServer(Configuration.GetConnectionString("sqlConnection"))
+           );
 
             services.AddCors(o =>
             {
@@ -36,6 +50,8 @@ namespace HotelListing
                 );
 
             });
+            services.AddAutoMapper(typeof(MapperInitilizer));
+            services.AddTransient<IUnitOfWork, UnitOfWork>();
 
             services.AddSwaggerGen(c =>
             {
