@@ -32,7 +32,6 @@ namespace HotelListing.Controllers
             _mapper = mapper;
             _authManager = authManager;
         }
-
         [HttpPost]
         [Route("register")]
         [ProducesResponseType(StatusCodes.Status202Accepted)]
@@ -46,16 +45,18 @@ namespace HotelListing.Controllers
                 return BadRequest(ModelState);
             }
 
+
+
             try
             {
                 var user = _mapper.Map<ApiUser>(userDTO);
                 user.UserName = userDTO.Email;
-                var result = await _userManager.CreateAsync(user);
-                // Log the result
+                var result = await _userManager.CreateAsync(user, userDTO.Password);
+
+
 
                 if (!result.Succeeded)
                 {
-                    // Log
                     foreach (var error in result.Errors)
                     {
                         ModelState.AddModelError(error.Code, error.Description);
@@ -82,6 +83,8 @@ namespace HotelListing.Controllers
                 return BadRequest(ModelState);
             }
 
+
+
             try
             {
                 if (!await _authManager.ValidateUser(userDTO))
@@ -89,7 +92,10 @@ namespace HotelListing.Controllers
                     return Unauthorized();
                 }
 
+
+
                 return Accepted(new { Token = await _authManager.CreateToken() });
+
             }
             catch (Exception ex)
             {
@@ -97,5 +103,7 @@ namespace HotelListing.Controllers
                 return Problem($"Something Went Wrong in the {nameof(Login)}", statusCode: 500);
             }
         }
+
+
     }
 }
